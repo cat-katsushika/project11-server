@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
   title: AI裁判官
-  summary: AIが介入してゲームみたいに楽しく揉め事を解決するサービス
+  summary: AIが補助してゲームみたいに楽しく揉め事を解決するWebアプリのAPI仕様書
   version: 1.0.0
 
 paths:
@@ -44,7 +44,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlayerCreateResponse'
-
   /trial/claim/:
     post:
       tags: [Trial]
@@ -83,12 +82,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClaimUpdateResponse'
-  
   /chat/:
     post:
-      tags: [chat]
+      tags: [Chat]
       summary: チャット内の新規メッセージを取得する
-      description: クライアントは、定期的にこのエンドポイントを呼び出し、チャットのIDとリクエスト時の最新メッセージのcreated_atをリクエストし、新しいメッセージを取得する。
+      description: |
+        クライアントは、定期的にこのエンドポイントを呼び出し、チャットのIDとリクエスト時の最新メッセージのcreated_atをリクエストし、新しいメッセージを取得する。<br>
+        message単位の順番は保証されていないので、created_atでソートして表示させてください。
       requestBody:
         required: true
         content:
@@ -102,10 +102,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChatGetResponse'
-  
   /chat/latest_message/:
     post:
-      tags: [chat]
+      tags: [Chat]
       summary: メインチャット内の最新メッセージを取得する
       description: | 
         議論フェーズでは、プロジェクターに（原告、被告、裁判官の3者が話しているメインの）チャットの最新メッセージを表示する。<br>
@@ -123,10 +122,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LatestChatMessageResponse'
-  
   /message/create/:
     post:
-      tags: [message]
+      tags: [Message]
       summary: チャットにメッセージを送信する
       description: |
         クライアントは、チャットIDと発信者IDと発言内容をリクエストする。<br>
@@ -144,12 +142,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-
-  /message/good/:
+  /message/{message_id}/good/:
     post:
-      tags: [message]
+      tags: [Message]
       summary: メッセージにグッドをつける
-      description: 
+      parameters:
+        - in: path
+          name: message_id
+          required: true
+          description: 対象のメッセージID
+          schema:
+            $ref: '#/components/schemas/id'
       requestBody:
         required: true
         content:
@@ -157,66 +160,94 @@ paths:
             schema:
               $ref: '#/components/schemas/MessageReactionRequest'
       responses:
-        '201':
+        '200':
           description: メッセージグッド成功
-
-    delete:
-      tags: [message]
+          content:
+            application/json:
+              example:
+                success: "グッドしました。"
+  /message/{message_id}/ungood/:
+    post:
+      tags: [Message]
       summary: メッセージのグッドを取り消す
-      description:
+      parameters:
+        - in: path
+          name: message_id
+          required: true
+          description: 対象のメッセージID
+          schema:
+            $ref: '#/components/schemas/id'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteMessageReaction'
+              $ref: '#/components/schemas/MessageReactionRequest'
       responses:
-        '204':
+        '200':
           description: メッセージに対するリアクション(グッド)の取り消し成功
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/DeleteMessageReactionResponse'
+              example:
+                success: "グッドを取り消しました。"
+
 
 components:
   schemas:
-
     # 要素一つ一つの定義 ABC順
     claim:
       type: string
-      example: "お腹が空いていたとしても人のプリンを食べるのは重罪"
+      examples:
+        - "お腹が空いていたとしても人のプリンを食べるのは重罪"
 
     created_at:
       type: string
-      example: "2024-09-16T10:35:49.716241+09:00"
+      examples:
+        - "2024-09-16T10:35:49.716241+09:00"
+
     id:
       type: string
       format: uuid
-      example: 123e4567-e89b-12d3-a456-426614174000
-    
+      examples:
+        - 123e4567-e89b-12d3-a456-426614174000
+
+    message:
+      type: string
+      examples:
+        - "Aさんの主張についてコメントします。プリンの容器の底の名前なんて見えません。"
+
     player_name:
       type: string
-      example: "Player1"
-    
+      examples:
+        - "Player1"
+
     role:
       type: string
       enum: [plaintiff, defendant, spectator]
-      example: plaintiff
+      examples:
+        - plaintiff
 
     trial_subject:
       type: string
-      example: "プリンを食べたことについて"
-      
-    
-    message:
-      type: string
-      example: "Aさんの主張についてコメントします。プリンの容器の底の名前なんて見えません。"
-
-
-
+      examples:
+        - "プリンを食べたことについて"
 
     # リクエスト・レスポンスの定義 ABC順
+    ChatGetRequest:
+      type: object
+      properties:
+        chat_id:
+          $ref: '#/components/schemas/id'
+        latest_message_created_at:
+          $ref: '#/components/schemas/created_at'
 
+    ChatGetResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageResponse'
 
     ClaimCreate:
       type: object
@@ -244,7 +275,6 @@ components:
         created_at:
           $ref: '#/components/schemas/created_at'  
 
-
     ClaimUpdate:
       type: object
       properties:
@@ -269,18 +299,6 @@ components:
         claim:
           $ref: '#/components/schemas/claim'
 
-    DeleteMessageReaction:
-      type: object
-      properties:
-        message_id:
-          $ref: '#/components/schemas/id'
-        player_id:
-          $ref: '#/components/schemas/id'
-
-    DeleteMessageReactionResponse:
-      type: object
-
-
     LatestChatMessage:
       type: object
       properties:
@@ -300,6 +318,38 @@ components:
           $ref: '#/components/schemas/player_name'
         message_id:
           $ref: '#/components/schemas/id'
+        message:
+          $ref: '#/components/schemas/message'
+        created_at:
+          $ref: '#/components/schemas/created_at'
+
+    MessageCreateRequset:
+      type: object
+      properties:
+        chat_id:
+          $ref: '#/components/schemas/id'
+        player_id:
+          $ref: '#/components/schemas/id'
+        message:
+          $ref: '#/components/schemas/message'
+
+    MessageReactionRequest:
+      type: object
+      properties:
+        player_id:
+          $ref: '#/components/schemas/id'
+
+    MessageResponse:
+      type: object
+      properties:
+        message_id:
+          $ref: '#/components/schemas/id'
+        chat_id:
+          $ref: '#/components/schemas/id'
+        player_id:
+          $ref: '#/components/schemas/id'
+        player_name:
+          $ref: '#/components/schemas/player_name'
         message:
           $ref: '#/components/schemas/message'
         created_at:
@@ -328,9 +378,6 @@ components:
           $ref: '#/components/schemas/player_name'
         role:
           $ref: '#/components/schemas/role'
-  
-
-
 
     TrialCreate:
       type: object
@@ -349,54 +396,3 @@ components:
           $ref: '#/components/schemas/trial_subject'
         created_at:
           $ref: '#/components/schemas/created_at'
-
-    ChatGetRequest:
-      type: object
-      properties:
-        chat_id:
-          $ref: '#/components/schemas/id'
-        latest_message_created_at:
-          $ref: '#/components/schemas/created_at'
-    
-    MessageResponse:
-      type: object
-      properties:
-        message_id:
-          $ref: '#/components/schemas/id'
-        chat_id:
-          $ref: '#/components/schemas/id'
-        player_id:
-          $ref: '#/components/schemas/id'
-        player_name:
-          $ref: '#/components/schemas/player_name'
-        message:
-          $ref: '#/components/schemas/message'
-        created_at:
-          $ref: '#/components/schemas/created_at'
-
-    ChatGetResponse:
-      type: object
-      properties:
-        messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageResponse'
-
-    MessageCreateRequset:
-      type: object
-      properties:
-        chat_id:
-          $ref: '#/components/schemas/id'
-        player_id:
-          $ref: '#/components/schemas/id'
-        message:
-          $ref: '#/components/schemas/message'
-          
-
-    MessageReactionRequest:
-      type: object
-      properties:
-        message_id:
-          $ref: '#/components/schemas/id'
-        player_id:
-          $ref: '#/components/schemas/id'
