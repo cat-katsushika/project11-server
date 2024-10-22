@@ -24,13 +24,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TrialCreateResponse'
+  /trial/game_state/:
+    post:
+      tags: [Trial]
+      summary: ゲームの初期進行状態を取得する
+      description: |
+        ゲームの初期進行状態を取得するエンドポイント。<br>
+        - 2つのQRコードを表示するフェーズ
+        - 1つのQRコードを表示するフェーズ
+        - 裁判官の暫定的な判決を表示するフェーズ
+        を指示する．
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrialGameState'
+      responses:
+        '200':
+          description: ゲームの初期進行状態取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrialGameStateResponse'
+
+
   /trial/player/create/:
     post:
       tags: [Trial]
       summary: 裁判に参加するプレイヤーの名前を登録する
       description: |
-        QRコードを読み取り、名前を登録するエンドポイント
-        ロールは、plaintiff (原告), defendant (被告), spectator (傍聴人) のいずれか
+        QRコードを読み取り、名前を登録するエンドポイント<br>
+        ロールは、plaintiff (原告), defendant (被告), spectator (傍聴人)のいずれか<br>
+        main_chat_id: 原告，被告，裁判官の3者が話すのチャットのID<br>
+        sub_chat_id: 傍聴人が話すチャットのID (傍聴人のプレイヤーの名前登録時には値が存在) <br>
       requestBody:
         required: true
         content:
@@ -213,16 +240,17 @@ components:
       examples:
         - "2024-09-16T10:35:49.716241+09:00"
 
+    game_state:
+      type: string
+      enum: [show_qr_2, show_qr_1, show_judge]
+      examples:
+        - show_qr_2
+
     id:
       type: string
       format: uuid
       examples:
         - 123e4567-e89b-12d3-a456-426614174000
-
-    isMain:
-      type: boolean
-      examples:
-        - true
 
     message:
       type: string
@@ -248,14 +276,25 @@ components:
         - "プリンを食べたことについて"
 
     # リクエスト・レスポンスの定義 ABC順
-    # FIXME:
     ChatGetResponse:
-      type: object
-      properties:
-        messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageResponse'
+      type: array
+      items:
+        type: object
+        properties:
+          message_id:
+            $ref: '#/components/schemas/id'
+          chat_id:
+            $ref: '#/components/schemas/id'
+          player_id:
+            $ref: '#/components/schemas/id'
+          player_name:
+            $ref: '#/components/schemas/player_name'
+          player_role:
+            $ref: '#/components/schemas/role'
+          message:
+            $ref: '#/components/schemas/message'
+          created_at:
+            $ref: '#/components/schemas/created_at'
 
     ClaimCreate:
       type: object
@@ -350,15 +389,14 @@ components:
     MessageResponse:
       type: object
       properties:
-        id:
+        message_id:
           $ref: '#/components/schemas/id'
         chat_id:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
-        # NOTE:
-        # player_name:
-        #   $ref: '#/components/schemas/player_name'
+        player_name:
+          $ref: '#/components/schemas/player_name'
         message:
           $ref: '#/components/schemas/message'
         created_at:
@@ -387,6 +425,10 @@ components:
           $ref: '#/components/schemas/player_name'
         role:
           $ref: '#/components/schemas/role'
+        main_chat_id:
+          $ref: '#/components/schemas/id'
+        sub_chat_id:
+          $ref: '#/components/schemas/id'
 
     TrialCreate:
       type: object
@@ -405,3 +447,17 @@ components:
           $ref: '#/components/schemas/trial_subject'
         created_at:
           $ref: '#/components/schemas/created_at'
+
+    TrialGameState:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+    
+    TrialGameStateResponse:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+        game_state:
+          $ref: '#/components/schemas/game_state'
