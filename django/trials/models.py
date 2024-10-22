@@ -5,10 +5,10 @@ from django.db import models
 class Trial(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
     subject = models.CharField(max_length=50, verbose_name="裁判内容")
-    plaintiff_claim = models.CharField(max_length=100, verbose_name="原告の主張")
-    plaintiff_final_claim = models.CharField(max_length=100, verbose_name="原告の最終主張")
-    defendant_claim = models.CharField(max_length=100, verbose_name="被告の主張")
-    defendant_final_claim = models.CharField(max_length=100, verbose_name="被告の最終主張")
+    plaintiff_claim = models.CharField(max_length=100, verbose_name="原告(A)の主張")
+    plaintiff_final_claim = models.CharField(max_length=100, verbose_name="原告(A)の最終主張")
+    defendant_claim = models.CharField(max_length=100, verbose_name="被告(B)の主張")
+    defendant_final_claim = models.CharField(max_length=100, verbose_name="被告(B)の最終主張")
     provisional_judgment = models.CharField(max_length=100, verbose_name="暫定的な判決")
     final_judgment = models.CharField(max_length=100, verbose_name="最終判決")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
@@ -22,8 +22,8 @@ class Trial(models.Model):
 
 class Player(models.Model):
     ROLE_CHOICES = {
-        "plaintiff": "原告",
-        "defendant": "被告",
+        "plaintiff": "原告(A)",
+        "defendant": "被告(B)",
         "judge": "裁判官",
         "spectator": "傍聴人",
     }
