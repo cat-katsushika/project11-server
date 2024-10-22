@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import uuid6
 from django.db import models
 
@@ -21,7 +23,7 @@ class Trial(models.Model):
 
 
 class Player(models.Model):
-    ROLE_CHOICES = {
+    ROLE_CHOICES: ClassVar[dict[str, str]] = {
         "plaintiff": "原告(A)",
         "defendant": "被告(B)",
         "judge": "裁判官",
