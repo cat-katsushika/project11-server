@@ -197,6 +197,7 @@ components:
     # 要素一つ一つの定義 ABC順
     claim:
       type: string
+      maximum: 100
       examples:
         - "お腹が空いていたとしても人のプリンを食べるのは重罪"
 
@@ -211,24 +212,31 @@ components:
       examples:
         - 123e4567-e89b-12d3-a456-426614174000
 
+    isMain:
+      type: boolean
+      examples:
+        - true
+
     message:
       type: string
+      maximum: 100
       examples:
         - "Aさんの主張についてコメントします。プリンの容器の底の名前なんて見えません。"
 
-    player_name:
+    name:
       type: string
       examples:
         - "Player1"
 
     role:
       type: string
-      enum: [plaintiff, defendant, spectator]
+      enum: [plaintiff, defendant, spectator, judge]
       examples:
         - plaintiff
 
-    trial_subject:
+    subject:
       type: string
+      maximum: 50
       examples:
         - "プリンを食べたことについて"
 
@@ -314,8 +322,8 @@ components:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
-        player_name:
-          $ref: '#/components/schemas/player_name'
+        name:
+          $ref: '#/components/schemas/name'
         message_id:
           $ref: '#/components/schemas/id'
         message:
@@ -348,8 +356,8 @@ components:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
-        player_name:
-          $ref: '#/components/schemas/player_name'
+        name:
+          $ref: '#/components/schemas/name'
         message:
           $ref: '#/components/schemas/message'
         created_at:
@@ -362,37 +370,37 @@ components:
           $ref: '#/components/schemas/id'
         role:
           $ref: '#/components/schemas/role'
-        player_name:
-          $ref: '#/components/schemas/player_name'
+        name:
+          $ref: '#/components/schemas/name'
       required:
         - trial_id
         - role
-        - player_name
+        - name
 
     PlayerCreateResponse:
       type: object
       properties:
         player_id:
           $ref: '#/components/schemas/id'
-        player_name:
-          $ref: '#/components/schemas/player_name'
+        name:
+          $ref: '#/components/schemas/name'
         role:
           $ref: '#/components/schemas/role'
 
     TrialCreate:
       type: object
       properties:
-        trial_subject:
-          $ref: '#/components/schemas/trial_subject'
+        subject:
+          $ref: '#/components/schemas/subject'
       required:
-        - trial_subject
+        - subject
 
     TrialCreateResponse:
       type: object
       properties:
         trial_id:
           $ref: '#/components/schemas/id'
-        trial_subject:
-          $ref: '#/components/schemas/trial_subject'
+        subject:
+          $ref: '#/components/schemas/subject'
         created_at:
           $ref: '#/components/schemas/created_at'
