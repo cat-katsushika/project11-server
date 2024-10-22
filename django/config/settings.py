@@ -35,6 +35,8 @@ ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
 # Application definition
 
 INSTALLED_APPS = [
+    'trials',
+    'chats',
     'rest_framework',
     'corsheaders',
     'django.contrib.admin',
