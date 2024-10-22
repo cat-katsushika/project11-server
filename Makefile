@@ -26,3 +26,19 @@ logs:
 .PHONY: test
 test:
 	docker compose -f compose-dev.yml exec django python manage.py test
+
+# pythonコードのリント
+.PHONY: ruff-check
+ruff-check:
+	docker compose -f compose-dev.yml exec django ruff check --fix .
+
+# pythonコードのフォーマット
+.PHONY: ruff-format
+ruff-format:
+	docker compose -f compose-dev.yml exec django ruff format .
+
+# pythonコードのフォーマットとリント
+.PHONY: ruff
+ruff:
+	@make ruff-check
+	@make ruff-format
