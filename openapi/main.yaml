@@ -82,26 +82,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClaimUpdateResponse'
-  /chat/:
-    post:
+  /chat/{chat_id}/:
+    get:
       tags: [Chat]
       summary: チャット内の新規メッセージを取得する
       description: |
-        クライアントは、定期的にこのエンドポイントを呼び出し、チャットのIDとリクエスト時の最新メッセージのcreated_atをリクエストし、新しいメッセージを取得する。<br>
+        クライアントは、チャットのIDとリクエスト時点で保持している最新メッセージのcreated_atを用いて、定期的にこのエンドポイントを呼び出し、新しいメッセージを取得する。<br>
         message単位の順番は保証されていないので、created_atでソートして表示させてください。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChatGetRequest'
+      parameters:
+        - in: path
+          name: chat_id
+          required: true
+          description: 
+          schema:
+            $ref: '#/components/schemas/id'
+        - in: query
+          name: latest_message_created_at
+          required: true
+          description: 
+          schema:
+            $ref: '#/components/schemas/created_at'
       responses:
         '200':
           description: メッセージ取得成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChatGetResponse'
+                $ref: '#/components/schemas/ChatGetResponse'      
   /chat/latest_message/:
     post:
       tags: [Chat]
@@ -165,7 +172,7 @@ paths:
           content:
             application/json:
               example:
-                success: "グッドしました。"
+                success: "グッドをつけました。"
   /message/{message_id}/ungood/:
     post:
       tags: [Message]
@@ -223,7 +230,7 @@ components:
       examples:
         - "Aさんの主張についてコメントします。プリンの容器の底の名前なんて見えません。"
 
-    name:
+    player_name:
       type: string
       examples:
         - "Player1"
@@ -234,21 +241,14 @@ components:
       examples:
         - plaintiff
 
-    subject:
+    trial_subject:
       type: string
       maximum: 50
       examples:
         - "プリンを食べたことについて"
 
     # リクエスト・レスポンスの定義 ABC順
-    ChatGetRequest:
-      type: object
-      properties:
-        chat_id:
-          $ref: '#/components/schemas/id'
-        latest_message_created_at:
-          $ref: '#/components/schemas/created_at'
-
+    # FIXME:
     ChatGetResponse:
       type: object
       properties:
@@ -322,8 +322,8 @@ components:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
-        name:
-          $ref: '#/components/schemas/name'
+        player_name:
+          $ref: '#/components/schemas/player_name'
         message_id:
           $ref: '#/components/schemas/id'
         message:
@@ -350,14 +350,15 @@ components:
     MessageResponse:
       type: object
       properties:
-        message_id:
+        id:
           $ref: '#/components/schemas/id'
         chat_id:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
-        name:
-          $ref: '#/components/schemas/name'
+        # NOTE:
+        # player_name:
+        #   $ref: '#/components/schemas/player_name'
         message:
           $ref: '#/components/schemas/message'
         created_at:
@@ -370,20 +371,20 @@ components:
           $ref: '#/components/schemas/id'
         role:
           $ref: '#/components/schemas/role'
-        name:
-          $ref: '#/components/schemas/name'
+        player_name:
+          $ref: '#/components/schemas/player_name'
       required:
         - trial_id
         - role
-        - name
+        - player_name
 
     PlayerCreateResponse:
       type: object
       properties:
         player_id:
           $ref: '#/components/schemas/id'
-        name:
-          $ref: '#/components/schemas/name'
+        player_name:
+          $ref: '#/components/schemas/player_name'
         role:
           $ref: '#/components/schemas/role'
 
@@ -391,7 +392,7 @@ components:
       type: object
       properties:
         subject:
-          $ref: '#/components/schemas/subject'
+          $ref: '#/components/schemas/trial_subject'
       required:
         - subject
 
@@ -401,6 +402,6 @@ components:
         trial_id:
           $ref: '#/components/schemas/id'
         subject:
-          $ref: '#/components/schemas/subject'
+          $ref: '#/components/schemas/trial_subject'
         created_at:
           $ref: '#/components/schemas/created_at'
