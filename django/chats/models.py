@@ -1,13 +1,13 @@
 import uuid6
 from django.db import models
 
-from trials.models import Trial, Player
+from trials.models import Player, Trial
 
 
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
     trail_id = models.ForeignKey(Trial, on_delete=models.CASCADE, verbose_name="裁判")
-    isMain = models.BooleanField(default=False, verbose_name="メインチャットかどうか")
+    is_main = models.BooleanField(default=False, verbose_name="メインチャットかどうか")
 
     class Meta:
         verbose_name = "チャット"
