@@ -168,13 +168,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClaimUpdateResponse'
-  /chat/{chat_id}/:
+  /chat/{chat_id}/message/polling/:
     get:
       tags: [Chat]
       summary: チャット内の新規メッセージを取得する
-      description: |
-        クライアントは、チャットのIDとリクエスト時点で保持している最新メッセージのcreated_atを用いて、定期的にこのエンドポイントを呼び出し、新しいメッセージを取得する。<br>
-        message単位の順番は保証されていないので、created_atでソートして表示させてください。
+      description: クライアントは、チャットのIDとリクエスト時点で保持している最新メッセージのcreated_atを用いて、定期的にこのエンドポイントを呼び出し、新しいメッセージを取得する。
       parameters:
         - in: path
           name: chat_id
