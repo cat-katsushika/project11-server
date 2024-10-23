@@ -6,6 +6,6 @@ from . import views
 app_name = "chats"
 
 urlpatterns = [
-    path("chats/<uuid:chat_id>/", views.ChatMessagePollingListAPIView.as_view()),
-    path("messages/", views.MessageCreateAPIView.as_view()),
+    path("chat/<uuid:chat_id>/message/polling/", views.ChatMessagePollingListAPIView.as_view()),
+    path("message/create/", views.MessageCreateAPIView.as_view()),
 ]

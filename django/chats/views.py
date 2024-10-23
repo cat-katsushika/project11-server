@@ -11,7 +11,7 @@ class ChatMessagePollingListAPIView(APIView):
         latest_message_created_at = request.query_params.get("latest_message_created_at")
         if latest_message_created_at is None:
             return Response({"detail": "クエリパラメータ latest_message_created_at が必要です"}, status=status.HTTP_400_BAD_REQUEST)
-        messages = Message.objects.filter(chat=chat_id, created_at__gt=latest_message_created_at)
+        messages = Message.objects.filter(chat=chat_id, created_at__gt=latest_message_created_at).order_by("created_at")
         serializer = MessagePollingSerializer(messages, many=True)
         return Response(serializer.data)
 
