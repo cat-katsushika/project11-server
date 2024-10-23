@@ -11,7 +11,7 @@ class MessageSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = "__all__"
+        fields = ["message_id", "player_id", "player_name", "message", "created_at"]
 
 
 class MessagePollingSerializer(MessageSerialiser):

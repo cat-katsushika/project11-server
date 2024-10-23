@@ -353,8 +353,6 @@ components:
         properties:
           message_id:
             $ref: '#/components/schemas/id'
-          chat_id:
-            $ref: '#/components/schemas/id'
           player_id:
             $ref: '#/components/schemas/id'
           player_name:
@@ -446,14 +444,12 @@ components:
     LatestChatMessageResponse:
       type: object
       properties:
-        chat_id:
+        message_id:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
         player_name:
           $ref: '#/components/schemas/player_name'
-        message_id:
-          $ref: '#/components/schemas/id'
         message:
           $ref: '#/components/schemas/message'
         created_at:
@@ -479,8 +475,6 @@ components:
       type: object
       properties:
         message_id:
-          $ref: '#/components/schemas/id'
-        chat_id:
           $ref: '#/components/schemas/id'
         player_id:
           $ref: '#/components/schemas/id'
