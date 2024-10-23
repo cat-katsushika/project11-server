@@ -1,8 +1,9 @@
 from rest_framewirk.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 
-from .models import Message
+from .models import Chat
 from .serializers import MessageSerialiser, MessagePollingSerializer
 
 
@@ -11,7 +12,8 @@ class ChatMessagePollingListAPIView(APIView):
         latest_message_created_at = request.query_params.get("latest_message_created_at")
         if latest_message_created_at is None:
             return Response({"detail": "クエリパラメータ'latest_message_created_at'は空にできません。"}, status=status.HTTP_400_BAD_REQUEST)
-        messages = Message.objects.filter(chat=chat_id, created_at__gt=latest_message_created_at).order_by("created_at")
+        chat = get_object_or_404(Chat, id=chat_id)
+        messages = chat.message_set.filter(created_at__gt=latest_message_created_at).order_by("created_at")
         serializer = MessagePollingSerializer(messages, many=True)
         return Response(serializer.data)
 
@@ -21,7 +23,8 @@ class ChatLatestMessageAPIView(APIView):
         chat_id = request.data.get("chat_id")
         if chat_id is None:
             return Response({"detail": "'chat_id'は空にできません。"}, status=status.HTTP_400_BAD_REQUEST)
-        message = Message.objects.filter(chat=chat_id).latest("created_at")
+        chat = get_object_or_404(Chat, id=chat_id)
+        message = chat.message_set.latest("created_at")
         serializer = MessageSerialiser(message)
         return Response(serializer.data)
 
