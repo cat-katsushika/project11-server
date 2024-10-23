@@ -3,14 +3,16 @@ openapi: 3.1.0
 info:
   title: AI裁判官
   summary: AIが補助してゲームみたいに楽しく揉め事を解決するWebアプリのAPI
-  version: 1.0.0
+  version: 1.0.1
 
 paths:
   /trial/create/:
     post:
       tags: [Trial]
       summary: 裁判を作成する
-      description: 裁判を作成する.
+      description: |
+        プロジェクター用 <br>
+        裁判を作成する.
       requestBody:
         required: true
         content:
@@ -24,15 +26,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TrialCreateResponse'
+
+  /trial/claims_and_judgments/:
+    post:
+      tags: [Trial]
+      summary: 主張または判決を取得する
+      description: |
+        プロジェクター用 <br>
+        - 原告の主張 (plaintiff_claim),
+        - 被告の主張 (defendant_claim),
+        - 裁判官の暫定的な判決 (judge_judgment),
+        - 原告の最終主張 (plaintiff_final_claim),
+        - 被告の最終主張 (defendant_final_claim),
+        - 裁判官の最終判決 (judge_final_judgment)
+        を取得するエンドポイント.<br>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimsAndJudgments'
+      responses:
+        '200':
+          description: 主張または判決取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsAndJudgmentsResponse'
   /trial/game_state/:
     post:
       tags: [Trial]
       summary: ゲームの初期進行状態を取得する
       description: |
+        プロジェクター，スマホ用 <br>
         ゲームの初期進行状態を取得するエンドポイント。<br>
-        - 2つのQRコードを表示するフェーズ (show_qr_2), 
-        - 1つのQRコードを表示するフェーズ (show_qr_1), 
-        - 裁判官の暫定的な判決を表示するフェーズ (show_judge)
+        - 2つのQRコードを表示するフェーズ (show_two_qr_codes),
+        - 1つのQRコードを表示するフェーズ (show_one_qr_codes), 
+        - 原告の主張，被告の主張，裁判官の暫定的な判決を表示するフェーズ (show_first_claim_and_judge),
+        - 話し合いのフェーズ (discussion)
+        - 最後の主張と判決を表示するフェーズ (show_final_claim_and_judge)
         を指示する．
       requestBody:
         required: true
@@ -48,12 +80,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/TrialGameStateResponse'
 
+  /trial/game_state/set/:
+    post:
+      tags: [Trial]
+      summary: ゲームの進行状態を設定する
+      description: |
+        プロジェクター用 <br>
+        ゲームの進行状態をバックエンドを伝えるエンドポイント.<br>
+        以下のタイミングで叩くことを想定している.<br>
+        - 裁判官の暫定的な判決を表示が終わったタイミング (discussion) <br>
+        - 話し合いが終了したタイミング (show_final_claim_and_judge) <br>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrialGameStateSet'
+      responses:
+        '200':
+          description: ゲームの進行状態設定成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrialGameStateSetResponse'
+
 
   /trial/player/create/:
     post:
       tags: [Trial]
       summary: 裁判に参加するプレイヤーの名前を登録する
       description: |
+        スマホ用 <br>
         QRコードを読み取り、名前を登録するエンドポイント<br>
         ロールは、plaintiff (原告), defendant (被告), spectator (傍聴人)のいずれか<br>
         main_chat_id: 原告，被告，裁判官の3者が話すのチャットのID<br>
@@ -76,6 +133,7 @@ paths:
       tags: [Trial]
       summary: 主張を作成する
       description: |
+        スマホ用 <br>
         原告、被告がQRコードを読み取り、名前を入力した後、最初の主張で入力した内容をPOSTするエンドポイント.
       requestBody:
         required: true
@@ -94,6 +152,7 @@ paths:
       tags: [Trial]
       summary: 主張を更新する
       description: |
+        スマホ用 <br>
         裁判内容に対する主張を更新するエンドポイント。<br>
         ゲーム開始後は、原告、被告が主張を更新することができ、その時はこのPATCHを叩いて更新する.
       requestBody:
@@ -240,9 +299,9 @@ components:
 
     game_state:
       type: string
-      enum: [show_qr_2, show_qr_1, show_judge]
+      enum: [show_two_qr_codes, show_one_qr_codes, show_first_claim_and_judge, discussion, show_final_claim_and_judge]
       examples:
-        - show_qr_2
+        - discussion
 
     id:
       type: string
@@ -260,6 +319,17 @@ components:
       type: string
       examples:
         - "Player1"
+
+    resource:
+      type: string
+      examples:
+        - "お腹が空いていたとしても人のプリンを食べるのは重罪のため、原告に賠償金を支払うように判決します。"
+    
+    resource_type:
+      type: string
+      enum: [plaintiff_claim, defendant_claim, provisional_judgment, plaintiff_final_claim, defendant_final_claim, final_judgment]
+      examples:
+        - judge_judgment
 
     role:
       type: string
@@ -317,8 +387,27 @@ components:
           $ref: '#/components/schemas/id'
         claim:
           $ref: '#/components/schemas/claim'
-        created_at:
-          $ref: '#/components/schemas/created_at'  
+
+    ClaimsAndJudgments:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+        resource_type:
+          $ref: '#/components/schemas/resource_type'
+
+    ClaimsAndJudgmentsResponse:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+        resource_type:
+          $ref: '#/components/schemas/resource_type'
+        resource:
+          $ref: '#/components/schemas/resource'
+
+
+
 
     ClaimUpdate:
       type: object
@@ -453,6 +542,22 @@ components:
           $ref: '#/components/schemas/id'
     
     TrialGameStateResponse:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+        game_state:
+          $ref: '#/components/schemas/game_state'
+
+    TrialGameStateSet:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+        game_state:
+          $ref: '#/components/schemas/game_state'
+
+    TrialGameStateSetResponse:
       type: object
       properties:
         trial_id:

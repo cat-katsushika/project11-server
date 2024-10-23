@@ -6,14 +6,14 @@ from trials.models import Player, Trial
 
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
-    trail = models.ForeignKey(Trial, on_delete=models.CASCADE, verbose_name="裁判")
+    trial = models.ForeignKey(Trial, on_delete=models.CASCADE, verbose_name="裁判")
     is_main = models.BooleanField(default=False, verbose_name="メインチャットかどうか")
 
     class Meta:
         verbose_name = "チャット"
 
     def __str__(self):
-        return f"[{'Main' if self.is_main else 'Sub'}] {self.trail.subject[:15]}..."
+        return f"[{'Main' if self.is_main else 'Sub'}] {self.trial.subject[:15]}..."
 
 
 class Message(models.Model):
