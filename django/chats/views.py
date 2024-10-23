@@ -1,17 +1,20 @@
-from rest_framewirk.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framewirk.views import APIView
+from rest_framework import status
+from rest_framework.response import Response
 
 from .models import Chat, Message
-from .serializers import MessageSerialiser, MessagePollingSerializer, GoodSerializer
+from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerialiser
 
 
 class ChatMessagePollingListAPIView(APIView):
     def get(self, request, chat_id):
         latest_message_created_at = request.query_params.get("latest_message_created_at")
         if latest_message_created_at is None:
-            return Response({"detail": "クエリパラメータ'latest_message_created_at'は空にできません。"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "クエリパラメータ'latest_message_created_at'は空にできません。"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         chat = get_object_or_404(Chat, id=chat_id)
         messages = chat.message_set.filter(created_at__gt=latest_message_created_at).order_by("created_at")
         serializer = MessagePollingSerializer(messages, many=True)
@@ -35,7 +38,7 @@ class MessageCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         headers = self.get_success_headers(serializer.data)
-        # TODO: 非同期でDifyのAPIを呼び出す
+        # TODO: 非同期でDifyのAPIを呼び出す # noqa: TD002, TD003, FIX002
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
@@ -45,7 +48,7 @@ class GiveGoodAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"success": "グッドをつけました。"}, status=status.HTTP_200_OK)
-    
+
 
 class CancelGoodAPIView(APIView):
     def post(self, request, message_id):

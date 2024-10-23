@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Message, Good
+from .models import Good, Message
 
 
 class MessageSerialiser(serializers.ModelSerializer):
@@ -12,7 +12,7 @@ class MessageSerialiser(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = "__all__"
-    
+
 
 class MessagePollingSerializer(MessageSerialiser):
     player_role = serializers.CharField(source="player.role", read_only=True)
