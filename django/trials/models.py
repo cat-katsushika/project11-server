@@ -31,7 +31,7 @@ class Player(models.Model):
     }
 
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
-    trial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, verbose_name="裁判")
+    trial = models.ForeignKey(Trial, on_delete=models.CASCADE, verbose_name="裁判")
     name = models.CharField(max_length=10, verbose_name="名前")
     role = models.CharField(max_length=10, choices=ROLE_CHOICES.items(), verbose_name="役職")
 
