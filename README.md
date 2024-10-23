@@ -22,3 +22,6 @@ make dev
 
 ### API仕様書の確認方法  
 APIの仕様だけを確認したい場合は、[Swagger Editor](https://editor-next.swagger.io/) に `openapi/main.yaml` の内容をコピー＆ペーストしてください。
+
+### Djangoが立ち上がらないとき（バックエンド以外向け）
+dbフォルダを削除してから，`make dev`で新しく環境を立ち上げると治る可能性があります．
