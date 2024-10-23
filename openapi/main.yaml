@@ -329,7 +329,7 @@ components:
     
     resource_type:
       type: string
-      enum: [plaintiff_claim, defendant_claim, judge_judgment, plaintiff_final_claim, defendant_final_claim, judge_final_judgment]
+      enum: [plaintiff_claim, defendant_claim, provisional_judgment, plaintiff_final_claim, defendant_final_claim, final_judgment]
       examples:
         - judge_judgment
 
@@ -407,6 +407,7 @@ components:
           $ref: '#/components/schemas/resource_type'
         resource:
           $ref: '#/components/schemas/resource'
+
 
 
 

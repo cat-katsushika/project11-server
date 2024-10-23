@@ -20,6 +20,19 @@ class Trial(models.Model):
 
     def __str__(self):
         return f"[{self.created_at}] {self.subject[:15]}..."
+    
+class GameState(models.Model):
+    STATE_CHOICES: ClassVar[dict[str, str]] = {
+        "show_two_qr_codes": "QRコードを2つ表示",
+        "show_one_qr_codes": "QRコードを1つ表示",
+        "show_first_claim_and_judge": "原告の主張，被告の主張，裁判官の暫定的な判決を表示",
+        "discussion": "話し合い",
+        "show_final_claim_and_judge": "最終主張と判決を表示",
+    }
+    id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
+    trial = models.ForeignKey(Trial, on_delete=models.CASCADE, verbose_name="裁判")
+    state = models.CharField(max_length=30, choices=STATE_CHOICES.items(), verbose_name="ゲーム状態")
+
 
 
 class Player(models.Model):
