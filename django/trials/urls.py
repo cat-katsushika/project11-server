@@ -1,6 +1,12 @@
 from django.urls import path
 
-from .views import TrialClaimAPIView, TrialCreateAPIView, TrialGameStateAPIView, TrialPlayerCreateAPIView, TrialGameStateSetAPIView
+from .views import (
+    TrialClaimAPIView,
+    TrialCreateAPIView,
+    TrialGameStateAPIView,
+    TrialGameStateSetAPIView,
+    TrialPlayerCreateAPIView,
+)
 
 app_name = "trials"
 

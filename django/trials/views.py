@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 
 from chats.models import Chat
 
-from .models import Player, Trial, GameState
+from .models import GameState, Player, Trial
 from .serializers import TrialCreateSerializer
 from .utils import create_provisional_judgment, get_chat_id, update_trial_game_state
 
@@ -24,7 +24,8 @@ class TrialCreateAPIView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 class ClaimsAndJudgmentsAPIView(APIView):
     def post(self, request):
         trial_id = request.data.get("trial_id", None)
@@ -39,7 +40,7 @@ class ClaimsAndJudgmentsAPIView(APIView):
         except Trial.DoesNotExist:
             detail = {"detail": "指定されたtrial_idに対応するTrialが存在しません"}
             return Response(detail, status=status.HTTP_404_NOT_FOUND)
-        
+
         if resource_type == "plaintiff_claim":
             resource = trial.plaintiff_claim
         elif resource_type == "defendant_claim":
@@ -62,8 +63,7 @@ class ClaimsAndJudgmentsAPIView(APIView):
             "resource": resource,
         }
 
-        return Response(status=status.HTTP_200_OK)
-
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class TrialGameStateAPIView(APIView):
@@ -77,13 +77,14 @@ class TrialGameStateAPIView(APIView):
             game_state = GameState.objects.get(trial_id=trial_id)
         except GameState.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         response_data = {
             "trial_id": trial_id,
             "state": game_state.state,
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 class TrialGameStateSetAPIView(APIView):
     def post(self, request):
@@ -94,29 +95,26 @@ class TrialGameStateSetAPIView(APIView):
             detail = {"detail": "trial_id, game_stateは必須です"}
             return Response(detail, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            trial = Trial.objects.get(id=trial_id)
-        except Trial.DoesNotExist:
-            detail = {"detail": "指定されたtrial_idに対応するTrialが存在しません"}
-            return Response(detail, status=status.HTTP_404_NOT_FOUND)
-        
         if game_state not in GameState.STATE_CHOICES:
             detail = {"detail": "game_stateが不正です"}
             return Response(detail, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             game_state_model = GameState.objects.get(trial_id=trial_id)
-            game_state_model.state = game_state
-            game_state_model.save()
         except GameState.DoesNotExist:
+            detail = {"detail": "指定されたtrial_idに対応するGameStateが存在しません"}
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
+        game_state_model.state = game_state
+        game_state_model.save()
+
         response_data = {
             "trial_id": trial_id,
             "game_state": game_state,
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 class TrialPlayerCreateAPIView(APIView):
     def post(self, request):
@@ -136,7 +134,7 @@ class TrialPlayerCreateAPIView(APIView):
             player = Player.objects.create(trial=trial, role=role, name=player_name)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
         update_trial_game_state(trial_id)
 
         main_chat_id, sub_chat_id = get_chat_id(trial_id, role)

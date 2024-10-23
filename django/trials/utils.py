@@ -1,6 +1,6 @@
 from chats.models import Chat
 
-from .models import Trial, GameState, Player
+from .models import GameState, Player, Trial
 
 
 def get_chat_id(trial_id, role) -> tuple:
@@ -36,11 +36,10 @@ def update_trial_game_state(trial_id) -> None:
         game_state.state = "show_first_claim_and_judge"
         game_state.save()
         return
-    
+
     plaintiff = Player.objects.filter(trial_id=trial_id, role="plaintiff").exists()
     defendant = Player.objects.filter(trial_id=trial_id, role="defendant").exists()
     if plaintiff and defendant:
         game_state.state = "show_one_qr_codes"
         game_state.save()
         return
-    
