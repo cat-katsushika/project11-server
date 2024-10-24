@@ -174,7 +174,12 @@ paths:
       summary: チャット内の新規メッセージを取得する
       description: |
         クライアントは、チャットのIDとリクエスト時点で保持している最新メッセージのcreated_atを用いて、定期的にこのエンドポイントを呼び出し、新しいメッセージを取得する。<br>
-        レスポンスの配列内のメッセージは、created_atが古いのが先頭になるように並べられる。
+        レスポンスの配列内のメッセージは、created_atが古いのが先頭になるように並べられる。<br>
+        クエリパラメータで日時を安全に渡すために、URLエンコードを使う。具体的には次のようにすればいい。<br>
+        ```
+        const timestamp = new Date().toISOString(); // ISO 8601形式で日時を取得
+        const encodedTimestamp = encodeURIComponent(timestamp); // エンコード
+        ```
       parameters:
         - in: path
           name: chat_id
@@ -187,7 +192,8 @@ paths:
           required: true
           description: 
           schema:
-            $ref: '#/components/schemas/created_at'
+            type: string
+          example: "2024-10-24T05%3A51%3A16.067Z"
       responses:
         '200':
           description: メッセージ取得成功

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import uuid6
 from django.db import models
 
@@ -37,6 +39,9 @@ class Good(models.Model):
 
     class Meta:
         verbose_name = "グッド"
+        constraints: ClassVar[list[models.UniqueConstraint]] = [
+            models.UniqueConstraint(fields=["message", "player"], name="unique_good"),
+        ]
 
     def __str__(self):
         return f"{self.player.name} -> {self.message.message[:15]}..."
