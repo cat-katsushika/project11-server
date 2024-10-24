@@ -6,7 +6,8 @@ from chats.models import Chat
 
 from .models import GameState, Player, Trial
 from .serializers import TrialCreateSerializer
-from .utils import create_provisional_judgment, get_chat_id, update_trial_game_state
+from .tasks import create_provisional_judgment
+from .utils import get_chat_id, update_trial_game_state
 
 
 class TrialCreateAPIView(APIView):
@@ -183,7 +184,7 @@ class TrialClaimAPIView(APIView):
         trial.save()
 
         if trial.plaintiff_claim and trial.defendant_claim and not trial.provisional_judgment:
-            create_provisional_judgment(trial_id)
+            create_provisional_judgment.delay_on_commit(trial_id)
 
         update_trial_game_state(trial_id)
 
