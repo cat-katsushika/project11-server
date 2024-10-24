@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from urllib.parse import unquote
 
 from .models import Chat, Message
 from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerializer
@@ -9,12 +10,13 @@ from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerial
 
 class ChatMessagePollingListAPIView(APIView):
     def get(self, request, chat_id):
-        latest_message_created_at = request.query_params.get("latest_message_created_at")
-        if latest_message_created_at is None:
+        encoded_timestamp_param = request.query_params.get("latest_message_created_at")
+        if encoded_timestamp_param is None:
             return Response(
                 {"detail": "クエリパラメータ'latest_message_created_at'は空にできません。"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        latest_message_created_at = unquote(encoded_timestamp_param)
         chat = get_object_or_404(Chat, id=chat_id)
         messages = chat.message_set.filter(created_at__gt=latest_message_created_at).order_by("created_at")
         serializer = MessagePollingSerializer(messages, many=True)
@@ -43,7 +45,7 @@ class MessageCreateAPIView(APIView):
 
 class GiveGoodAPIView(APIView):
     def post(self, request, message_id):
-        serializer = GoodSerializer(data={"message": message_id, "player": request.user.id})
+        serializer = GoodSerializer(data={"message": message_id, "player": request.data["player_id"]})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"success": "グッドをつけました。"}, status=status.HTTP_200_OK)
@@ -52,6 +54,6 @@ class GiveGoodAPIView(APIView):
 class CancelGoodAPIView(APIView):
     def post(self, request, message_id):
         message = get_object_or_404(Message, id=message_id)
-        good = message.good_set.get(player=request.user)
+        good = message.good_set.get(player=request.data["player_id"])
         good.delete()
         return Response({"success": "グッドを取り消しました。"}, status=status.HTTP_200_OK)
