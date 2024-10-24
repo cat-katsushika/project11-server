@@ -18,14 +18,6 @@ def get_chat_id(trial_id, role) -> tuple:
     return main_chat_id, sub_chat_id
 
 
-def create_provisional_judgment(trial_id) -> str:
-    """暫定判決を作成する"""
-
-    trial = Trial.objects.get(id=trial_id)
-    trial.provisional_judgment = "暫定的な判決"
-    trial.save()
-
-
 def update_trial_game_state(trial_id) -> None:
     """裁判のゲーム状態を更新する"""
 

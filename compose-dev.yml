@@ -27,6 +27,37 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - webnet
+
+    # RabbitMQ service
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    ports:
+      - "15672:15672"  # RabbitMQの管理UIポート
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - webnet
+
+  celery:
+    build:
+      context: ./django
+      dockerfile: Dockerfile.dev
+    command: ['bash', '-c', 'celery -A config worker -l info']
+    env_file:
+      - .env
+    volumes:
+      - ./django:/django
+    depends_on:
+      - rabbitmq
     networks:
       - webnet
 
