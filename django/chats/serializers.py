@@ -1,8 +1,9 @@
-from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
+from trials.models import Player
 
 from .models import Chat, Good, Message
-from trials.models import Player
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -20,8 +21,7 @@ class MessageSerializer(serializers.ModelSerializer):
         player_id = validated_data.pop("player_id")
         chat = get_object_or_404(Chat, id=chat_id)
         player = get_object_or_404(Player, id=player_id)
-        message = Message.objects.create(chat=chat, player=player, **validated_data)
-        return message
+        return Message.objects.create(chat=chat, player=player, **validated_data)
 
 
 class MessagePollingSerializer(MessageSerializer):
