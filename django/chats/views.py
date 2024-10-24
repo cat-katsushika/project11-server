@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Chat, Message
-from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerialiser
+from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerializer
 
 
 class ChatMessagePollingListAPIView(APIView):
@@ -28,18 +28,17 @@ class ChatLatestMessageAPIView(APIView):
             return Response({"detail": "'chat_id'は空にできません。"}, status=status.HTTP_400_BAD_REQUEST)
         chat = get_object_or_404(Chat, id=chat_id)
         message = chat.message_set.latest("created_at")
-        serializer = MessageSerialiser(message)
+        serializer = MessageSerializer(message)
         return Response(serializer.data)
 
 
 class MessageCreateAPIView(APIView):
     def post(self, request):
-        serializer = MessageSerialiser(data=request.data)
+        serializer = MessageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        headers = self.get_success_headers(serializer.data)
         # TODO: 非同期でDifyのAPIを呼び出す # noqa: TD002, TD003, FIX002
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class GiveGoodAPIView(APIView):
