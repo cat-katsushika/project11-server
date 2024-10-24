@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,13 +29,12 @@ class TrialCreateAPIView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class ClaimsAndJudgmentsAPIView(APIView):
+class TrialProjectorDiscussionAPIView(APIView):
     def post(self, request):
         trial_id = request.data.get("trial_id", None)
-        resource_type = request.data.get("resource_type", None)
 
-        if not trial_id or not resource_type:
-            detail = {"detail": "trial_id, resource_typeは必須です"}
+        if not trial_id:
+            detail = {"detail": "trial_idは必須です"}
             return Response(detail, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -42,44 +43,62 @@ class ClaimsAndJudgmentsAPIView(APIView):
             detail = {"detail": "指定されたtrial_idに対応するTrialが存在しません"}
             return Response(detail, status=status.HTTP_404_NOT_FOUND)
 
-        if resource_type == "plaintiff_claim":
-            resource = trial.plaintiff_claim
-        elif resource_type == "defendant_claim":
-            resource = trial.defendant_claim
-        elif resource_type == "provisional_judgment":
-            resource = trial.provisional_judgment
-        elif resource_type == "plaintiff_final_claim":
-            resource = trial.plaintiff_final_claim
-        elif resource_type == "defendant_final_claim":
-            resource = trial.defendant_final_claim
-        elif resource_type == "final_judgment":
-            resource = trial.final_judgment
-        else:
-            detail = {"detail": "resource_typeが不正です"}
-            return Response(detail, status=status.HTTP_400_BAD_REQUEST)
-        
-        if resource_type in ("plaintiff_claim", "plaintiff_final_claim"):
-            try:
-                player = Player.objects.get(trial=trial, role="plaintiff")
-                player_name = player.name
-            except Player.DoesNotExist:
-                detail = {"detail": "原告のPlayerが存在しません"}
-                return Response(detail, status=status.HTTP_404_NOT_FOUND)
-            
-        elif resource_type in ("defendant_claim", "defendant_final_claim"):
-            try:
-                player = Player.objects.get(trial=trial, role="defendant")
-                player_name = player.name
-            except Player.DoesNotExist:
-                detail = {"detail": "被告のPlayerが存在しません"}
-                return Response(detail, status=status.HTTP_404_NOT_FOUND)
-        elif resource_type in ("provisional_judgment", "final_judgment"):
-            player_name = "AI裁判官"
-        else:
-            detail = {"detail": "resource_typeが不正です"}
-            return Response(detail, status=status.HTTP_400_BAD_REQUEST)
-        
+        response_data = {
+            "trial_id": trial_id,
+            "subject": trial.subject,
+            "plaintiff_claim": trial.plaintiff_claim,
+            "defendant_claim": trial.defendant_claim,
+            "provisional_judgment": trial.provisional_judgment,
+        }
 
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class ClaimsAndJudgmentsAPIView(APIView):
+    RESOURCE_MAPPING: ClassVar[dict[str, str]] = {
+        "plaintiff_claim": "plaintiff",
+        "defendant_claim": "defendant",
+        "provisional_judgment": "AI裁判官",
+        "plaintiff_final_claim": "plaintiff",
+        "defendant_final_claim": "defendant",
+        "final_judgment": "AI裁判官",
+    }
+
+    def post(self, request):
+        trial_id = request.data.get("trial_id", None)
+        resource_type = request.data.get("resource_type", None)
+
+        # 必須フィールドのバリデーション
+        if not trial_id or not resource_type:
+            return Response({"detail": "trial_id, resource_typeは必須です"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Trialの取得
+        try:
+            trial = Trial.objects.get(id=trial_id)
+        except Trial.DoesNotExist:
+            return Response(
+                {"detail": "指定されたtrial_idに対応するTrialが存在しません"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        # resource_typeのバリデーション
+        if resource_type not in self.RESOURCE_MAPPING:
+            return Response({"detail": "resource_typeが不正です"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # resourceの取得
+        resource = getattr(trial, resource_type, None)
+
+        # Player名の取得
+        player_role = self.RESOURCE_MAPPING.get(resource_type)
+        if player_role == "AI裁判官":
+            player_name = player_role
+        else:
+            try:
+                player = Player.objects.get(trial=trial, role=player_role)
+                player_name = player.name
+            except Player.DoesNotExist:
+                return Response({"detail": f"{player_role}のPlayerが存在しません"}, status=status.HTTP_404_NOT_FOUND)
+
+        # レスポンスデータの作成
         response_data = {
             "trial_id": trial_id,
             "player_name": player_name,
