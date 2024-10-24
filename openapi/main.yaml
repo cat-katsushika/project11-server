@@ -407,12 +407,12 @@ components:
       properties:
         trial_id:
           $ref: '#/components/schemas/id'
+        player_name:
+          $ref: '#/components/schemas/player_name'
         resource_type:
           $ref: '#/components/schemas/resource_type'
         resource:
           $ref: '#/components/schemas/resource'
-
-
 
 
     ClaimUpdate:

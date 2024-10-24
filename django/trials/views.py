@@ -56,9 +56,32 @@ class ClaimsAndJudgmentsAPIView(APIView):
         else:
             detail = {"detail": "resource_typeが不正です"}
             return Response(detail, status=status.HTTP_400_BAD_REQUEST)
+        
+        if resource_type in ("plaintiff_claim", "plaintiff_final_claim"):
+            try:
+                player = Player.objects.get(trial=trial, role="plaintiff")
+                player_name = player.name
+            except Player.DoesNotExist:
+                detail = {"detail": "原告のPlayerが存在しません"}
+                return Response(detail, status=status.HTTP_404_NOT_FOUND)
+            
+        elif resource_type in ("defendant_claim", "defendant_final_claim"):
+            try:
+                player = Player.objects.get(trial=trial, role="defendant")
+                player_name = player.name
+            except Player.DoesNotExist:
+                detail = {"detail": "被告のPlayerが存在しません"}
+                return Response(detail, status=status.HTTP_404_NOT_FOUND)
+        elif resource_type in ("provisional_judgment", "final_judgment"):
+            player_name = "AI裁判官"
+        else:
+            detail = {"detail": "resource_typeが不正です"}
+            return Response(detail, status=status.HTTP_400_BAD_REQUEST)
+        
 
         response_data = {
             "trial_id": trial_id,
+            "player_name": player_name,
             "resource_type": resource_type,
             "resource": resource,
         }
