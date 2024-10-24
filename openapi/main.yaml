@@ -548,7 +548,7 @@ components:
       properties:
         trial_id:
           $ref: '#/components/schemas/id'
-        game_state:
+        state:
           $ref: '#/components/schemas/game_state'
 
     TrialGameStateSet:
@@ -556,7 +556,7 @@ components:
       properties:
         trial_id:
           $ref: '#/components/schemas/id'
-        game_state:
+        state:
           $ref: '#/components/schemas/game_state'
 
     TrialGameStateSetResponse:
@@ -564,5 +564,5 @@ components:
       properties:
         trial_id:
           $ref: '#/components/schemas/id'
-        game_state:
+        state:
           $ref: '#/components/schemas/game_state'

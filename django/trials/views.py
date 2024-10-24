@@ -89,28 +89,28 @@ class TrialGameStateAPIView(APIView):
 class TrialGameStateSetAPIView(APIView):
     def post(self, request):
         trial_id = request.data.get("trial_id", None)
-        game_state = request.data.get("game_state", None)
+        state = request.data.get("state", None)
 
-        if not trial_id or not game_state:
-            detail = {"detail": "trial_id, game_stateは必須です"}
+        if not trial_id or not state:
+            detail = {"detail": "trial_id, stateは必須です"}
             return Response(detail, status=status.HTTP_400_BAD_REQUEST)
 
-        if game_state not in GameState.STATE_CHOICES:
-            detail = {"detail": "game_stateが不正です"}
+        if state not in GameState.STATE_CHOICES:
+            detail = {"detail": "stateが不正です"}
             return Response(detail, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            game_state_model = GameState.objects.get(trial_id=trial_id)
+            game_state = GameState.objects.get(trial_id=trial_id)
         except GameState.DoesNotExist:
             detail = {"detail": "指定されたtrial_idに対応するGameStateが存在しません"}
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        game_state_model.state = game_state
-        game_state_model.save()
+        game_state.state = state
+        game_state.save()
 
         response_data = {
             "trial_id": trial_id,
-            "game_state": game_state,
+            "state": state,
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
