@@ -35,10 +35,10 @@ paths:
         プロジェクター用 <br>
         - 原告の主張 (plaintiff_claim),
         - 被告の主張 (defendant_claim),
-        - 裁判官の暫定的な判決 (judge_judgment),
+        - 裁判官の暫定的な判決 (provisional_judgment),
         - 原告の最終主張 (plaintiff_final_claim),
         - 被告の最終主張 (defendant_final_claim),
-        - 裁判官の最終判決 (judge_final_judgment)
+        - 裁判官の最終判決 (final_judgment)
         を取得するエンドポイント.<br>
       requestBody:
         required: true
@@ -337,7 +337,7 @@ components:
       type: string
       enum: [plaintiff_claim, defendant_claim, provisional_judgment, plaintiff_final_claim, defendant_final_claim, final_judgment]
       examples:
-        - judge_judgment
+        - provisional_judgment
 
     role:
       type: string
