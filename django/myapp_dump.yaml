@@ -1,0 +1,28 @@
+- model: trials.trial
+  pk: 0192c68c-d874-7ea9-b0c5-ae038c34939f
+  fields:
+    subject: プリンを食べたことについて
+    plaintiff_claim: お腹が空いていたとしても人のプリンを食べるのは重罪
+    plaintiff_final_claim: ''
+    defendant_claim: ''
+    defendant_final_claim: ''
+    provisional_judgment: ''
+    final_judgment: ''
+    created_at: 2024-10-26 01:59:32.293114+00:00
+- model: trials.gamestate
+  pk: 0192c68c-d8d7-7e79-9d31-aaa4465bc875
+  fields:
+    trial: 0192c68c-d874-7ea9-b0c5-ae038c34939f
+    state: show_one_qr_codes
+- model: trials.player
+  pk: 0192c68d-f7ad-77cb-9241-64d4ffab366b
+  fields:
+    trial: 0192c68c-d874-7ea9-b0c5-ae038c34939f
+    name: Player1
+    role: plaintiff
+- model: trials.player
+  pk: 0192c691-5866-7aa7-a86b-b74853494ea0
+  fields:
+    trial: 0192c68c-d874-7ea9-b0c5-ae038c34939f
+    name: Player1
+    role: defendant
