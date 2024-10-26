@@ -42,3 +42,19 @@ ruff-format:
 ruff:
 	@make ruff-check
 	@make ruff-format
+
+
+
+## 以下、本番環境用
+.PHONY: prod-build
+prod-build:
+	docker compose -f compose-prod.yml build
+
+.PHONY: prod-up-d
+prod-up-d:
+	docker compose -f compose-prod.yml up -d
+
+.PHONY: prod
+prod:
+	@make prod-build
+	@make prod-up-d

@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${DB_NAME} -U $${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - project11-webnet
+
+  django:
+    build:
+      context: ./django
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./django/static:/django/static
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - project11-webnet
+
+    # RabbitMQ service
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    ports:
+      - "15672:15672"  # RabbitMQの管理UIポート
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project11-webnet
+
+  celery:
+    build:
+      context: ./django
+      dockerfile: Dockerfile.dev
+    command: ['bash', '-c', 'celery -A config worker -l info']
+    env_file:
+      - .env
+    volumes:
+      - ./django:/django
+    depends_on:
+      - rabbitmq
+    networks:
+      - project11-webnet
+
+
+networks:
+  project11-webnet:
+    driver: bridge
