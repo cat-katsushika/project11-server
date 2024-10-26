@@ -11,15 +11,13 @@ from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerial
 
 class ChatMessagePollingListAPIView(APIView):
     def get(self, request, chat_id):
-        encoded_timestamp_param = request.query_params.get("latest_message_created_at")
-        if encoded_timestamp_param is None:
-            return Response(
-                {"detail": "クエリパラメータ'latest_message_created_at'は空にできません。"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        latest_message_created_at = unquote(encoded_timestamp_param)
-        chat = get_object_or_404(Chat, id=chat_id)
-        messages = chat.message_set.filter(created_at__gt=latest_message_created_at).order_by("created_at")
+        encoded_timestamp_param = request.query_params.get("latest_message_created_at", "")
+        if encoded_timestamp_param != "":
+            latest_message_created_at = unquote(encoded_timestamp_param)
+            chat = get_object_or_404(Chat, id=chat_id)
+            messages = chat.message_set.filter(created_at__gt=latest_message_created_at).order_by("created_at")
+        else:
+            messages = Message.objects.all()
         serializer = MessagePollingSerializer(messages, many=True)
         return Response(serializer.data)
 
