@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 
 from .models import Chat, Message
 from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerializer
+from .tasks import conversation_check, response_and_question_list_update
+from .utils import check_chat_is_main
 
 
 class ChatMessagePollingListAPIView(APIView):
@@ -40,7 +42,21 @@ class MessageCreateAPIView(APIView):
         serializer = MessageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        # TODO: 非同期でDifyのAPIを呼び出す # noqa: TD002, TD003, FIX002
+
+
+        # AIが絡む処理
+        chat_id = serializer.data.get("chat_id", None)
+        player_id = serializer.data.get("player_id", None)
+
+        chat_is_main = check_chat_is_main(chat_id)
+        if chat_is_main:
+            # メインチャットの場合は、AI裁判官の新しい質問を追加するかどうか
+            conversation_check(chat_id)
+        else:
+            # サブチャットの場合は、返答と質問リストの更新
+            response_and_question_list_update(chat_id, player_id)
+
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
