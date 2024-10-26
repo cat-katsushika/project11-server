@@ -23,15 +23,15 @@ def update_trial_game_state(trial_id) -> None:
 
     game_state = GameState.objects.get(trial_id=trial_id)
 
-    trial = Trial.objects.get(id=trial_id)
-    if trial.defendant_claim and trial.plaintiff_claim:
-        game_state.state = "show_first_claim_and_judge"
-        game_state.save()
-        return
-
     plaintiff = Player.objects.filter(trial_id=trial_id, role="plaintiff").exists()
     defendant = Player.objects.filter(trial_id=trial_id, role="defendant").exists()
     if plaintiff and defendant:
         game_state.state = "show_one_qr_codes"
+        game_state.save()
+        return
+
+    trial = Trial.objects.get(id=trial_id)
+    if trial.defendant_claim and trial.plaintiff_claim:
+        game_state.state = "show_first_claim_and_judge"
         game_state.save()
         return
