@@ -43,7 +43,6 @@ class MessageCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-
         # AIが絡む処理
         chat_id = serializer.data.get("chat_id", None)
         player_id = serializer.data.get("player_id", None)
@@ -55,7 +54,6 @@ class MessageCreateAPIView(APIView):
         else:
             # サブチャットの場合は、返答と質問リストの更新
             response_and_question_list_update(chat_id, player_id)
-
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

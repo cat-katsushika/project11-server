@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from celery import shared_task
 
 from trials.models import Player
@@ -17,13 +20,16 @@ def conversation_check(chat_id):
     trial = chat.trial
 
     # AIに確認
-    should_speak_new_question = False # 会話が収束した場合に次の質問を投下
+    # mock
+    should_speak_new_question = bool(secrets.choice([0, 1]))
+    # mock end
 
     if should_speak_new_question:
         # 新しい質問を発言
         ai_judge = Player.objects.get_or_create(trial=trial, role="judge", name="AI裁判官")[0]
         question = get_question_by_trial_id(str(trial.id))
         Message.objects.create(chat=chat, player=ai_judge, message=question)
+
 
 @shared_task
 def response_and_question_list_update(chat_id, player_id):
@@ -35,10 +41,12 @@ def response_and_question_list_update(chat_id, player_id):
     trial = chat.trial
 
     # AIに確認
+    # mock
     ai_response = "いい質問だね, 現状答えられないので, 状況を見て私が質問します."
-    new_question_is_exist = True
-    new_question = "新しい大事な質問"
+    new_question_is_exist = bool(secrets.choice([0, 1]))
+    new_question = "新しい大事な質問" + "".join(secrets.choice(string.ascii_letters) for _ in range(2))
     new_question_order = 1
+    # mock end
 
     # 返信メッセージを作成
     Message.objects.create(chat=chat, player_id=player_id, message=ai_response)
