@@ -1,0 +1,22 @@
+- model: trials.trial
+  pk: 00000000-0000-0000-0000-000000000001
+  fields:
+    subject: 裁判1 内容が全て埋まっている
+    plaintiff_claim: '原告主張'
+    plaintiff_final_claim: '原告最終主張'
+    defendant_claim: '被告主張'
+    defendant_final_claim: '被告最終主張'
+    provisional_judgment: '暫定判決'
+    final_judgment: '最終判決'
+    created_at: 2024-10-26 00:00:00.000000+00:00
+- model: trials.trial
+  pk: 00000000-0000-0000-0000-000000000002
+  fields:
+    subject: 裁判2 原告のみ参加
+    plaintiff_claim: ''
+    plaintiff_final_claim: ''
+    defendant_claim: ''
+    defendant_final_claim: ''
+    provisional_judgment: ''
+    final_judgment: ''
+    created_at: 2024-10-26 00:00:00.000000+00:00

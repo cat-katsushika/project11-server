@@ -1,0 +1,6 @@
+- model: trials.player
+  pk: 00000000-0000-0000-0000-000000000002
+  fields:
+    trial: 00000000-0000-0000-0000-000000000002
+    name: plaintiff2
+    role: plaintiff
