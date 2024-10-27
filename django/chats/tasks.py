@@ -19,6 +19,9 @@ def generate_ai_reply(message_id):
     message = Message.objects.get(id=message_id)
     trial = Trial.objects.get(id=message.chat.trial.id)
 
+    if not Player.objects.filter(trial=trial, role="judge").exists():
+        Player.objects.create(trial=trial, role="judge", name="AI裁判官")
+
     past_messages_array = [
         {
             "player_name": message.player.name,

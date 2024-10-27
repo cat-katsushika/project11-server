@@ -43,7 +43,10 @@ class MessageCreateAPIView(APIView):
         serializer.save()
 
         # AIが絡む処理
-        generate_ai_reply(serializer.data["message_id"])
+        try:
+            generate_ai_reply(serializer.data["message_id"])
+        except Exception:
+            pass
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
