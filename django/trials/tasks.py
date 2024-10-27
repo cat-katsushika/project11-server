@@ -9,26 +9,14 @@ from chats.models import Chat, Message
 
 from .models import Player, Trial
 
-from .utils import call_zaitei_api
 
-
-# @shared_task
+@shared_task
 def create_provisional_judgment(trial_id) -> str:
     """暫定判決を作成する"""
 
     trial = Trial.objects.get(id=trial_id)
-    inputs = {
-        "subject": trial.subject,
-        "plaintiff_claim": trial.plaintiff_claim,
-        "defendant_claim": trial.defendant_claim,
-        "defendant_name": Player.objects.get(trial=trial, role="defendant").name,
-        "plaintiff_name": Player.objects.get(trial=trial, role="plaintiff").name,
-    }
-    try:
-        res = call_zaitei_api(inputs)
-        trial.provisional_judgment = res
-    except Exception:
-        pass
+    sleep(10)  # 動作確認用
+    trial.provisional_judgment = "暫定的な判決"
     trial.save()
 
 @shared_task

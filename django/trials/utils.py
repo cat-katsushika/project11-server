@@ -1,7 +1,6 @@
 from chats.models import Chat
 
 from .models import GameState, Player, Trial
-from django.conf import settings
 
 
 def get_chat_id(trial_id, role) -> tuple:
@@ -36,19 +35,3 @@ def update_trial_game_state(trial_id) -> None:
         game_state.state = "show_first_claim_and_judge"
         game_state.save()
         return
-    
-
-def call_zaitei_api(inputs):
-    api_key = settings.ZENTEIHANKETHI_KEY
-    url = "https://api.dify.ai/v1/workflows/run"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "inputs": inputs,
-        "response_mode": "blocking",
-        "user": "abc-1234"
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    return response.json()["data"]["outputs"]["text"]
