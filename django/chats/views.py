@@ -42,16 +42,16 @@ class MessageCreateAPIView(APIView):
         serializer.save()
 
         # AIが絡む処理
-        chat_id = serializer.data.get("chat_id", None)
-        player_id = serializer.data.get("player_id", None)
+        chat_id = request.data.get("chat_id", None)
+        player_id = request.data.get("player_id", None)
 
         chat_is_main = check_chat_is_main(chat_id)
         if chat_is_main:
             # メインチャットの場合は、AI裁判官の新しい質問を追加するかどうか
-            conversation_check(chat_id)
+            conversation_check.delay_on_commit(chat_id)
         else:
             # サブチャットの場合は、返答と質問リストの更新
-            response_and_question_list_update(chat_id, player_id)
+            response_and_question_list_update.delay_on_commit(chat_id, player_id)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
