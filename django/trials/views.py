@@ -8,7 +8,7 @@ from chats.models import Chat
 
 from .models import GameState, Player, Trial
 from .serializers import TrialCreateSerializer
-from .tasks import create_provisional_judgment
+from .tasks import create_provisional_judgment, create_discussion_content
 from .utils import get_chat_id, update_trial_game_state
 
 
@@ -150,6 +150,9 @@ class TrialGameStateSetAPIView(APIView):
 
         game_state.state = state
         game_state.save()
+        
+        if state == "show_final_claim_and_judge":
+            create_discussion_content.delay_on_commit(trial_id)
 
         response_data = {
             "trial_id": trial_id,
@@ -274,6 +277,35 @@ class TrialClaimAPIView(APIView):
             "trial_id": trial_id,
             "player_id": player_id,
             "claim": claim,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class TrialToPdfAPIView(APIView):
+    def post(self, request):
+        trial_id = request.data.get("trial_id", None)
+
+        if not trial_id:
+            detail = {"detail": "trial_idは必須です"}
+            return Response(detail, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            trial = Trial.objects.get(id=trial_id)
+        except Trial.DoesNotExist:
+            detail = {"detail": "指定されたtrial_idに対応するTrialが存在しません"}
+            return Response(detail, status=status.HTTP_404_NOT_FOUND)
+
+        response_data = {
+            "trial_id": trial_id,
+            "subject": trial.subject,
+            "discussion_content": trial.discussion_content,
+            "plaintiff_claim": trial.plaintiff_claim,
+            "defendant_claim": trial.defendant_claim,
+            "provisional_judgment": trial.provisional_judgment,
+            "plaintiff_final_claim": trial.plaintiff_final_claim,
+            "defendant_final_claim": trial.defendant_final_claim,
+            "final_judgment": trial.final_judgment,
         }
 
         return Response(response_data, status=status.HTTP_200_OK)

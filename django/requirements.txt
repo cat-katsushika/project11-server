@@ -10,3 +10,5 @@ requests==2.32.3
 
 # dev
 ruff==0.7.0
+PyYAML==6.0.2
+

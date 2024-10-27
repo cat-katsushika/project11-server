@@ -8,6 +8,7 @@ from .views import (
     TrialGameStateSetAPIView,
     TrialPlayerCreateAPIView,
     TrialProjectorDiscussionAPIView,
+    TrialToPdfAPIView,
 )
 
 app_name = "trials"
@@ -20,4 +21,5 @@ urlpatterns = [
     path("game_state/set/", TrialGameStateSetAPIView.as_view(), name="trial-game-state-set"),
     path("player/create/", TrialPlayerCreateAPIView.as_view(), name="trial-player-create"),
     path("claim/", TrialClaimAPIView.as_view(), name="trial-claim"),
+    path("to_pdf/", TrialToPdfAPIView.as_view(), name="trial-to-pdf"),
 ]
