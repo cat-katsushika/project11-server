@@ -50,7 +50,9 @@ def generate_ai_reply(message_id):
     res = call_dify_api(inputs, settings.DIFY_API_KEY)
 
     # 一時
-    Message.objects.create(chat=message.chat, player=Player.objects.get(trial=trial, role="judge"), message=json.loads(res)["reply_message"])
+    Message.objects.create(
+        chat=message.chat, player=Player.objects.get(trial=trial, role="judge"), message=json.loads(res)["reply_message"]
+        )
 
     # # AIに確認
     # # mock

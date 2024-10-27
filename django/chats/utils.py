@@ -51,11 +51,10 @@ def check_chat_is_main(chat_id):
 
     return chat.is_main
 
-def call_dify_api(inputs, API_KEY):
+def call_dify_api(inputs, api_key):
     """
     Dify APIを呼び出す
     """
-    api_key = API_KEY
     url = "https://api.dify.ai/v1/workflows/run"
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -67,5 +66,4 @@ def call_dify_api(inputs, API_KEY):
         "user": "abc-123"
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
-    text = response.json()["data"]["outputs"]["text"]
-    return text
+    return response.json()["data"]["outputs"]["text"]
