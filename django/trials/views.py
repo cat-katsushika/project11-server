@@ -8,7 +8,7 @@ from chats.models import Chat
 
 from .models import GameState, Player, Trial
 from .serializers import TrialCreateSerializer
-from .tasks import create_provisional_judgment
+from .tasks import create_provisional_judgment, create_discussion_content
 from .utils import get_chat_id, update_trial_game_state
 
 
@@ -150,6 +150,9 @@ class TrialGameStateSetAPIView(APIView):
 
         game_state.state = state
         game_state.save()
+        
+        if state == "show_final_claim_and_judge":
+            create_discussion_content.delay_on_commit(trial_id)
 
         response_data = {
             "trial_id": trial_id,
