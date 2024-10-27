@@ -277,3 +277,32 @@ class TrialClaimAPIView(APIView):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class TrialToPdfAPIView(APIView):
+    def post(self, request):
+        trial_id = request.data.get("trial_id", None)
+
+        if not trial_id:
+            detail = {"detail": "trial_idは必須です"}
+            return Response(detail, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            trial = Trial.objects.get(id=trial_id)
+        except Trial.DoesNotExist:
+            detail = {"detail": "指定されたtrial_idに対応するTrialが存在しません"}
+            return Response(detail, status=status.HTTP_404_NOT_FOUND)
+
+        response_data = {
+            "trial_id": trial_id,
+            "subject": trial.subject,
+            "discussion_content": trial.discussion_content,
+            "plaintiff_claim": trial.plaintiff_claim,
+            "defendant_claim": trial.defendant_claim,
+            "provisional_judgment": trial.provisional_judgment,
+            "plaintiff_final_claim": trial.plaintiff_final_claim,
+            "defendant_final_claim": trial.defendant_final_claim,
+            "final_judgment": trial.final_judgment,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
