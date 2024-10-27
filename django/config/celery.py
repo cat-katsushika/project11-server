@@ -7,6 +7,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 app = Celery("project11")
 
+
+
 # Djangoの設定ファイルの中で、CELERY_で始まる設定をCELERY用として読み込む
 app.config_from_object("django.conf:settings", namespace="CELERY")
 

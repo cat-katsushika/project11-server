@@ -1,3 +1,7 @@
+import json
+
+import requests
+
 from trials.models import Trial
 
 from .models import Chat, Question
@@ -46,3 +50,20 @@ def check_chat_is_main(chat_id):
         return None
 
     return chat.is_main
+
+def call_dify_api(inputs, api_key):
+    """
+    Dify APIを呼び出す
+    """
+    url = "https://api.dify.ai/v1/workflows/run"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "inputs": inputs,
+        "response_mode": "blocking",
+        "user": "abc-123"
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    return response.json()["data"]["outputs"]["text"]
