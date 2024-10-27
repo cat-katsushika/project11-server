@@ -45,7 +45,6 @@ class MessageCreateAPIView(APIView):
         chat_id = request.data.get("chat_id", None)
         player_id = request.data.get("player_id", None)
 
-
         chat_is_main = check_chat_is_main(chat_id)
         if chat_is_main:
             # メインチャットの場合は、AI裁判官の新しい質問を追加するかどうか
