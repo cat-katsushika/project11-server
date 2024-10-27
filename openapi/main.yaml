@@ -188,6 +188,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClaimUpdateResponse'
+
+  /api/trial/to_pdf/:
+    post:
+      tags: [Trial]
+      summary: PDFに必要な情報を返す
+      description: |
+        裁判の内容をPDFにする際に必要な情報を返すエンドポイント.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrialToPDF'
+      responses:
+        '200':
+          description: PDF作成成功
+          content:
+            application/pdf:
+              schema:
+                $ref: '#/components/schemas/TrialToPDFResponse'
+
   /api/chat/{chat_id}/message/polling/:
     get:
       tags: [Chat]
@@ -324,6 +345,11 @@ components:
       type: string
       examples:
         - "2024-09-16T10:35:49.716241+09:00"
+
+    discussion_content:
+      type: string
+      examples:
+        - "原告は、被告が自分のプリンを食べたと主張している。しかし、被告は自分のプリンを食べたと主張している。"
 
     game_state:
       type: string
@@ -575,6 +601,34 @@ components:
         defendant_claim:
           $ref: '#/components/schemas/claim'
         provisional_judgment:
+          $ref: '#/components/schemas/resource'
+
+    TrialToPDF:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+
+    TrialToPDFResponse:
+      type: object
+      properties:
+        trial_id:
+          $ref: '#/components/schemas/id'
+        subject:
+          $ref: '#/components/schemas/trial_subject'
+        discussion_content:
+          $ref: '#/components/schemas/discussion_content'
+        plaintiff_claim:
+          $ref: '#/components/schemas/claim'
+        defendant_claim:
+          $ref: '#/components/schemas/claim'
+        provisional_judgment:
+          $ref: '#/components/schemas/resource'
+        plaintiff_final_claim:
+          $ref: '#/components/schemas/claim'
+        defendant_final_claim:
+          $ref: '#/components/schemas/claim'
+        final_judgment:
           $ref: '#/components/schemas/resource'
 
     TrialGameState:

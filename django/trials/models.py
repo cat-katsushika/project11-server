@@ -13,6 +13,7 @@ class Trial(models.Model):
     defendant_final_claim = models.CharField(max_length=100, verbose_name="被告(B)の最終主張")
     provisional_judgment = models.CharField(max_length=100, verbose_name="暫定的な判決")
     final_judgment = models.CharField(max_length=100, verbose_name="最終判決")
+    discussion_content = models.TextField(max_length=100, verbose_name="話し合い内容", default="")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
     class Meta:
