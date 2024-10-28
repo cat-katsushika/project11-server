@@ -1,22 +1,36 @@
 import json
-from time import sleep
 
 import requests
 from celery import shared_task
 from django.conf import settings
 
 from chats.models import Chat, Message
+from chats.utils import execute_dify_workflow
 
 from .models import Player, Trial
 
 
-@shared_task
-def create_provisional_judgment(trial_id) -> str:
-    """暫定判決を作成する"""
+# @shared_task
+def create_provisional_judgment(trial_id) -> None:
+    """暫定判決を作成して保存する
 
+    - TrialClaimAPIViewのpostメソッド内で呼び出されることを想定している
+
+    Args:
+        trial_id (UUID): 対象の裁判ID
+    Returns:
+        None
+    """
     trial = Trial.objects.get(id=trial_id)
-    sleep(10)  # 動作確認用
-    trial.provisional_judgment = "暫定的な判決"
+    input_params = {
+        "subject": trial.subject,
+        "plaintiff_claim": trial.plaintiff_claim,
+        "plaintiff_name": trial.player_set.get(role="plaintiff").name,
+        "defendant_claim": trial.defendant_claim,
+        "defendant_name": trial.player_set.get(role="defendant").name,
+    }
+
+    trial.provisional_judgment = execute_dify_workflow(input_params, settings.DIFY_API_KEY_PROV_JUDGMENT)
     trial.save()
 
 
