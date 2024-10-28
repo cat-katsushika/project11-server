@@ -71,9 +71,6 @@ def execute_dify_workflow(input_params, api_key):
         "user": "from_django",
     }
 
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
-        response.raise_for_status()
-        return response.json()["data"]["outputs"]["text"]
-    except requests.exceptions.RequestException as e:
-        raise
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
+    response.raise_for_status()
+    return response.json()["data"]["outputs"]["text"]
