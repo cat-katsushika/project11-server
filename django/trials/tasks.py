@@ -19,6 +19,7 @@ def create_provisional_judgment(trial_id) -> str:
     trial.provisional_judgment = "暫定的な判決"
     trial.save()
 
+
 @shared_task
 def create_discussion_content(trial_id) -> str:
     """話し合い内容を作成する"""

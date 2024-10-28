@@ -9,8 +9,6 @@ from .models import Chat, Message
 from .serializers import GoodSerializer, MessagePollingSerializer, MessageSerializer
 from .tasks import generate_ai_reply
 
-# from .utils import check_chat_is_main
-
 
 class ChatMessagePollingListAPIView(APIView):
     def get(self, request, chat_id):
@@ -42,11 +40,7 @@ class MessageCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        # AIが絡む処理
-        try:
-            generate_ai_reply(serializer.data["message_id"])
-        except Exception:
-            pass
+        generate_ai_reply(serializer.data["message_id"])
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

@@ -51,19 +51,24 @@ def check_chat_is_main(chat_id):
 
     return chat.is_main
 
-def call_dify_api(inputs, api_key):
+
+def execute_dify_workflow(input_params, api_key):
+    """Dify APIでワークフローを実行する
+    Args:
+        input_params (dict[str, Any]): ワークフローの開始ノードの入力
+        api_key (str): 実行したいワークフローのAPIキー
+    Returns:
+        Any: ワークフローの終了ノードの出力
     """
-    Dify APIを呼び出す
-    """
-    url = "https://api.dify.ai/v1/workflows/run"
+    url = "https://api.dify.ai/v1/workflows/run/"
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
     data = {
-        "inputs": inputs,
+        "inputs": input_params,
         "response_mode": "blocking",
-        "user": "abc-123"
+        "user": "from_django",
     }
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
     return response.json()["data"]["outputs"]["text"]
