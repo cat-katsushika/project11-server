@@ -60,7 +60,7 @@ def execute_dify_workflow(input_params, api_key):
     Returns:
         Any: ワークフローの終了ノードの出力
     """
-    url = "https://api.dify.ai/v1/workflows/run/"
+    url = "https://api.dify.ai/v1/workflows/run"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -70,5 +70,10 @@ def execute_dify_workflow(input_params, api_key):
         "response_mode": "blocking",
         "user": "from_django",
     }
-    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
-    return response.json()["data"]["outputs"]["text"]
+
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
+        response.raise_for_status()
+        return response.json()["data"]["outputs"]["text"]
+    except requests.exceptions.RequestException as e:
+        raise

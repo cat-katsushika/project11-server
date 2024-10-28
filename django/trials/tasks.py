@@ -21,9 +21,7 @@ def create_provisional_judgment(trial_id) -> None:
     Returns:
         None
     """
-
     trial = Trial.objects.get(id=trial_id)
-
     input_params = {
         "subject": trial.subject,
         "plaintiff_claim": trial.plaintiff_claim,

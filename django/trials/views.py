@@ -229,7 +229,7 @@ class TrialClaimAPIView(APIView):
         trial.save()
 
         if trial.plaintiff_claim and trial.defendant_claim and not trial.provisional_judgment:
-            create_provisional_judgment.delay_on_commit(trial_id)
+            create_provisional_judgment(trial_id)
 
         update_trial_game_state(trial_id)
 
