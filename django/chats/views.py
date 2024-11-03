@@ -18,7 +18,7 @@ class ChatMessagePollingListAPIView(APIView):
             chat = get_object_or_404(Chat, id=chat_id)
             messages = chat.message_set.filter(created_at__gt=latest_message_created_at).order_by("created_at")
         else:
-            messages = Message.objects.all()
+            messages = Message.objects.filter(chat=chat_id).order_by("created_at")
         serializer = MessagePollingSerializer(messages, many=True)
         return Response(serializer.data)
 
