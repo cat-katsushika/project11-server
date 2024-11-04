@@ -3,7 +3,7 @@ import json
 from config import settings
 from trials.models import Player, Trial
 
-from .models import Message, Question
+from .models import Chat, Message, Question
 from .utils import execute_dify_workflow
 
 
@@ -29,7 +29,7 @@ def generate_ai_reply(message_id):
             "message_content": message.message,
             "created_at": message.created_at.isoformat(),
         }
-        for message in Message.objects.filter(chat=message.chat)
+        for message in Chat.objects.get(trial=trial, is_main=True).message_set.all()
     ]
     waiting_messages_array = [
         {"message": question.content, "priority": question.order} for question in Question.objects.filter(trial=trial)
